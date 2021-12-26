@@ -34,7 +34,8 @@ class Recharge(Resource):
     def get(self,cardNo,amount):
         if amount > 50:
             cur.callproc('recharge',(amount,cardNo[:16],cardNo[16:]))
-            return True
+            balance = cur.fetchall()
+            return jsonify(balance)
         else:
             return False 
 
