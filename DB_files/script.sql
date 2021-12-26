@@ -56,6 +56,8 @@ select insert_to_card();
 select * from card;
 select * from transactions;
 
+-- delete from card where card_id_2 = 13;
+
 -- initialization of stations table
 insert into stations values('Baiyappanahalli',0.00);
 insert into stations values('Swami Vivekananda Road',9.5);
