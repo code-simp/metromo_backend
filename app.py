@@ -18,12 +18,15 @@ cur = con.cursor()
 app = Flask(__name__)
 api = Api(app)
 
+
 # function to add new card to DB
 
 class AddCard(Resource):
     def get(self):
         cur.callproc('insert_to_card')
-        return True
+        new_card = cur.fetchall()
+        return jsonify(new_card)
+
 
 # function to recharge  MTROCRD26122021-0005
 

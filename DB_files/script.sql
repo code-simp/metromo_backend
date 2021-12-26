@@ -56,8 +56,6 @@ select insert_to_card();
 select * from card;
 select * from transactions;
 
-
-
 -- initialization of stations table
 insert into stations values('Baiyappanahalli',0.00);
 insert into stations values('Swami Vivekananda Road',9.5);
@@ -100,7 +98,7 @@ insert into stations values('Nagasandra', 67.95);
 
 -- Function to insert a new card to DB and add the same to the transaction table
 create or replace function insert_to_card()
-	returns void
+	returns varchar
 	language plpgsql
 	as
 $$
@@ -110,7 +108,7 @@ begin
 
 		insert into transactions
 		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1,concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(c_.card_id_2),50.0,null,null from transactions t_, card c_;
-
+		return concat(concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(card_id_2)) from card;
 end;
 $$
 
