@@ -1,28 +1,46 @@
-from os import X_OK
-from flask import Flask, render_template
+from flask import Flask,jsonify
+from flask_restful import Resource, Api
+import psycopg2 
+
+# Connecting the DB
+con = psycopg2.connect(
+    host = 'Tarun-MacBook-Air.local',
+    database = 'metromo',
+    user = 'postgres',
+    password = '1234')
+
+# cursor and queries
+cur = con.cursor()
+
+# cur.execute('select * from card')
+# try1 = cur.fetchall()
+# for i in try1:
+#     print(i)
+
 app = Flask(__name__)
+api = Api(app)
 
-posts = [
-    {
-        'author' : 'Author 1',
-        'book' : 'idk lets say 1',
-        'year' : '2021'
-    },
-    {
-        'author' : 'Author 2',
-        'book' : 'idk lets say 2',
-        'year' : '2021'
-    }
-]
 
-@app.route("/")
-@app.route('/home')
-def home():
-    return render_template('home.html',posts=posts)
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
 
-if __name__ =='__main__':
-    app.run(debug=True, host = '0.0.0.0', port = 3000)
+class HelloWorld(Resource):
+    def get(self):
+        return { 'hello' : 'world'}
+
+class fetch_card(Resource):
+    def get(self):
+        cur.execute('select * from card')
+        try1 = cur.fetchall()
+        for i in try1:
+            print(i)
+        return jsonify(try1)
+        
+
+api.add_resource(HelloWorld,'/')
+api.add_resource(fetch_card,'/fc')
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+cur.close()
