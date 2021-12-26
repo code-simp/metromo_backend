@@ -45,6 +45,9 @@ create table transactions(
 -- delete from card;
 -- delete from transactions;
 
+select * from transactions
+where concat(card_id_1,card_id_2) = 'MTROCRD26122021-5';
+
 -- DB initialization
 insert into card values('MTROCRD26122021-',1,50.0,true,date(now()+ interval '1 year'));
 insert into transactions values('TRANS26122021-',1,'MTROCRD26122021-',1,50.0,null,null);
@@ -131,6 +134,21 @@ begin
 		
 end;
 $$
+
+
+-- Function to travel
+create or replace function travel(cardNo1 varchar,cardNo2 int, source_ char, dest_ char)
+	returns bool
+	language plpgsql
+	as
+$$
+begin
+		select stations.station_cost into cost1 from stations where station_name = source_;
+		select stations.station_cost into cost2 from stations where station_name = dest_;
+
+		update card
+		set balance = balance - (28.5-cost1)
+		where cardNo2 = card_id_2;	
 
 
 
