@@ -1,4 +1,5 @@
 from flask import Flask,jsonify
+import json
 from flask.wrappers import Request
 from flask_restful import Resource, Api, reqparse
 import psycopg2 
@@ -63,12 +64,28 @@ class History_all(Resource):
         cur.execute('select * from transactions')
         historyAll = cur.fetchall()
         return jsonify(historyAll)
-        
+
+# function to travel and update the changes to DB
+
+class Travel(Resource):
+    def get(self,cardNo,source,dest):
+        cur.callproc('travel',(cardNo[:16],cardNo[16:],source,dest))
+        amount = cur.fetchall()
+        amount = json.dumps(str(amount))
+        amount = json.loads(amount)
+        amount = float(amount[11:16])
+        cur.callproc('update_balance',(amount,cardNo[:16],cardNo[16:],source,dest))
+        balance = cur.fetchall()
+        # balance = json.dumps(str(balance))
+        # balance = json.loads(balance)
+        balance = jsonify(balance)
+        return balance
 
 api.add_resource(AddCard,'/add_card')
 api.add_resource(History, '/history/<string:cardNoTemp>')
 api.add_resource(History_all, '/history_all')
 api.add_resource(Recharge,'/recharge_card/<string:cardNo>/<int:amount>')
+api.add_resource(Travel,'/travel/<string:cardNo>/<string:source>/<string:dest>')
 
 
 if __name__ == '__main__':
