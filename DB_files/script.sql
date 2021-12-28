@@ -53,6 +53,9 @@ where concat(card_id_1,card_id_2) = 'MTROCRD26122021-5';
 insert into card values('MTROCRD26122021-',1,50.0,true,date(now()+ interval '1 year'));
 insert into transactions values('TRANS26122021-',1,'MTROCRD26122021-',1,50.0,null,null);
 
+insert into transactions values('TRANS26122021-',1,'MTROCRD26122021-',1,50.0,null,null);
+
+
 select insert_to_card();
 select * from card;
 select * from transactions;
@@ -108,13 +111,38 @@ create or replace function insert_to_card()
 $$
 begin 
 		insert into card 
-		select concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(card_id_2)+1,50,true,date(now()+ interval '1 year') from card; 
+		select concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(card_id_2)+1,0,true,date(now()+ interval '1 year') from card; 
 
 		insert into transactions
 		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1,concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(c_.card_id_2),50.0,null,null from transactions t_, card c_;
 		return concat(concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(card_id_2)) from card;
 end;
 $$
+
+-- trigger function insert 50rs
+create or replace function update_bal()
+	returns trigger
+	language plpgsql
+as $$
+begin
+	new.balance = 50;
+	return new;
+end;
+$$
+
+-- trigger to insert 50rs balance to cards after insertion
+
+create or replace trigger update_balance
+before insert
+on card
+for each row
+execute procedure update_bal();
+
+--Testing if trigger works
+delete from card where card_id_2 = 22;
+select * from card;
+select * from transactions;
+select insert_to_card();
 
 -- select date(now()+interval '1 year');
 
@@ -129,13 +157,28 @@ begin
 		set balance = balance + amount
 		where cardNo2 = card_id_2;
 		
-		insert into transactions
-		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1,cardNo1,cardNo2,amount,null,null from transactions t_, card c_;
+		call recharge_push(cardNo1, cardNo2, amount);
 		
 		return (select balance from card where cardNo2 = card_id_2);
 		
 end;
 $$
+
+--stored procedure to push the recharge details to transaction table
+
+create or replace procedure recharge_push(cardNo1 varchar, cardNo2 int, amount decimal(13,2))
+language plpgsql
+as $$
+begin
+		insert into transactions
+		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1,cardNo1,cardNo2,amount,null,null from transactions t_, card c_;
+end;
+$$
+
+--test the recharge function with stored procedure
+select * from card;
+select * from transactions;
+select recharge(200,'MTROCRD26122021-',4);
 
 
 -- Function to just get the cost of a travel
