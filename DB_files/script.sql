@@ -238,7 +238,7 @@ $$
 select update_balance(100,'MTROCRD26122021-',4,'Mahalakshmi layout', 'Nadaprabhu Kempegowda Station');
 
 -- function to retreive the balance of a card
-create or replace function ret_bal(cardNo2 int)
+create or replace function ret_bal(cardNo1 varchar, cardNo2 int)
 	returns Numeric(13,2)
 	language plpgsql
 	as
@@ -249,8 +249,10 @@ begin
 end;
 $$
 
-select ret_bal(4);
+select ret_bal('MTROCRD04012022-', 26);
 select * from card;
+
+update card set balance = 40 where card_id_2 = 26;
 	
 
 
