@@ -218,7 +218,7 @@ select travel('MTROCRD26122021-',4,'Mahalakshmi-layout', 'Nadaprabhu-Kempegowda-
 
 -- Function to update the balance after travel and push the same to transaction table
 create or replace function update_balance(amount decimal(13,2),cardNo1 varchar,cardNo2 int,  source_ char(50), dest_ char(50))
-	returns decimal(13,2)
+	returns Numeric(13,2)
 	language plpgsql
 	as
 $$
@@ -236,6 +236,23 @@ end;
 $$
 
 select update_balance(100,'MTROCRD26122021-',4,'Mahalakshmi layout', 'Nadaprabhu Kempegowda Station');
+
+-- function to retreive the balance of a card
+create or replace function ret_bal(cardNo2 int)
+	returns Numeric(13,2)
+	language plpgsql
+	as
+	$$
+begin 
+	return (select balance from card where card_id_2 = cardNo2);
+	
+end;
+$$
+
+select ret_bal(4);
+select * from card;
+	
+
 
 		
 		

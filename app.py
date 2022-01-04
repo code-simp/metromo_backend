@@ -69,11 +69,18 @@ class History_all(Resource):
 
 class Travel(Resource):
     def get(self,cardNo,source,dest):
+        cur.callproc('ret_bal', (cardNo[:16],cardNo[16:]))
+        bal = cur.fetchall()
+        bal = json.dumps(str(bal))
+        bal = json.loads(bal)
+        bal = float(bal[11:-5])
+        if bal < 70:
+            return [['-1']]
         cur.callproc('travel',(cardNo[:16],cardNo[16:],source,dest))
         amount = cur.fetchall()
         amount = json.dumps(str(amount))
         amount = json.loads(amount)
-        print(amount[11:-5])
+        # print(amount[11:-5])
         amount = float(amount[11:-5])
         cur.callproc('update_balance',(amount,cardNo[:16],cardNo[16:],source,dest))
         balance = cur.fetchall()
