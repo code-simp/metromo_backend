@@ -74,7 +74,7 @@ class Travel(Resource):
         bal = json.dumps(str(bal))
         bal = json.loads(bal)
         bal = float(bal[11:-5])
-        if bal < 70:
+        if bal < 50:
             return [['-1']]
         cur.callproc('travel',(cardNo[:16],cardNo[16:],source,dest))
         amount = cur.fetchall()
