@@ -53,7 +53,7 @@ class History(Resource):
         print(cardNoTemp)
         cardNo += cardNoTemp[i:]
         print(cardNo)
-        cur.execute("select * from transactions where concat(card_id_1,card_id_2) = '%s'" %(cardNo))
+        cur.execute("select * from transactions where concat(card_id_1,card_id_2) = '%s' order by trans_id_2 desc" %(cardNo))
         history = cur.fetchall()
         return jsonify(history)
 
