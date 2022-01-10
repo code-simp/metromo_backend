@@ -1,3 +1,9 @@
+from dotenv import load_dotenv
+load_dotenv()
+
+import os
+SECRET_KEY = os.getenv("HOST")
+
 from flask import Flask,jsonify
 import json
 from flask.wrappers import Request
@@ -6,7 +12,7 @@ import psycopg2
 
 # Connecting the DB
 con = psycopg2.connect(
-    host = 'Tarun-MacBook-Air.local',
+    host = SECRET_KEY,
     database = 'metromo',
     user = 'postgres',
     password = '1234')
