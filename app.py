@@ -12,6 +12,7 @@ import psycopg2
 
 # Connecting the DB
 con = psycopg2.connect(
+    # port = "5431",
     host = SECRET_KEY,
     database = 'metromo',
     user = 'postgres',
@@ -105,4 +106,4 @@ api.add_resource(Travel,'/travel/<string:cardNo>/<string:source>/<string:dest>')
 if __name__ == '__main__':
     app.run(debug=True)
 
-cur.close()
+# cur.close()
