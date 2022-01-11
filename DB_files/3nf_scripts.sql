@@ -11,23 +11,36 @@ CREATE DATABASE metromo
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1;
 
-COMMENT ON DATABASE metromos
+COMMENT ON DATABASE metromo
     IS 'first try for mteromo database';
 	
 -- Table Creation
+
+ create table card_status(
+    exp_date date primary key,
+    status bool,
+ );   
+	
 create table card(
 	card_id_1 varchar(20),
 	card_id_2 int unique,
 	balance decimal(13,2),
-	status bool,
-	exp_date date,
-	primary key(card_id_1,card_id_2)
-	);
-	
+	exp_date date ,
+	primary key(card_id_1,card_id_2),
+	foreign key(exp_date) references card_status(exp_date)
+);
+
 create table stations(
 	station_name char(50) primary key not null,
 	station_class char(10), 
 	station_cost decimal(13,2)
+);
+
+create table transaction_cost(
+    trans_cost decimal(13,2) primary key,
+	trans_source char(50),
+	trans_destination char(50),
+	primary key(trans_source,trans_destination) 
 );
 
 create table transactions(
@@ -35,12 +48,13 @@ create table transactions(
 	trans_id_2 int unique,
 	card_id_1 varchar(20),
 	card_id_2 int,
-	trans_cost decimal(13,2),
 	trans_source char(50),
 	trans_destination char(50),
 	primary key(trans_id_1,trans_id_2),
 	foreign key(card_id_1,card_id_2) references card(card_id_1,card_id_2) on delete cascade
+	foreign key(trans_source,trans_destination) references transaction_cost(trans_source,trans_destination) on delete cascade
 );
+
 
 -- MISC.
 -- delete from card;
@@ -110,11 +124,12 @@ create or replace function insert_to_card()
 	as
 $$
 begin 
+		insert into card_status values(date(now()+ interval '1 year'),true);
 		insert into card 
-		select concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(card_id_2)+1,0,true,date(now()+ interval '1 year') from card; 
-
+		select concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(card_id_2)+1,0,date(now()+ interval '1 year') from card; 
+		insert into trans_cost values(50.0,null,null);
 		insert into transactions
-		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1,concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(c_.card_id_2),50.0,null,null from transactions t_, card c_;
+		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1,concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(c_.card_id_2),null,null from transactions t_, card c_;
 		return concat(concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(card_id_2)) from card;
 end;
 $$
