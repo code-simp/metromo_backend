@@ -1,46 +1,23 @@
--- Database: metromo
-
--- DROP DATABASE IF EXISTS metromo;
-
-CREATE DATABASE metromo
-    WITH 
-    OWNER = postgres
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'C'
-    LC_CTYPE = 'C'
-    TABLESPACE = pg_default
-    CONNECTION LIMIT = -1;
-
-COMMENT ON DATABASE metromo
-    IS 'first try for mteromo database';
-	
 -- Table Creation
-
- create table card_status(
-    exp_date date primary key,
-    status bool,
- );   
-	
 create table card(
 	card_id_1 varchar(20),
 	card_id_2 int unique,
 	balance decimal(13,2),
 	exp_date date ,
-	primary key(card_id_1,card_id_2),
-	foreign key(exp_date) references card_status(exp_date)
+	primary key(card_id_1,card_id_2)
 );
+
+ create table card_status(
+    card_id_1 varchar(20),
+	card_id_2 int unique,
+    status bool,
+	foreign key(card_id_1,card_id_2) references card(card_id_1,card_id_2) on delete cascade
+ );   
 
 create table stations(
 	station_name char(50) primary key not null,
 	station_class char(10), 
 	station_cost decimal(13,2)
-);
-
-create table transaction_cost(
-    trans_cost decimal(13,2) primary key,
-	trans_source char(50),
-	trans_destination char(50),
-	primary key(trans_source,trans_destination) 
 );
 
 create table transactions(
@@ -52,9 +29,14 @@ create table transactions(
 	trans_destination char(50),
 	primary key(trans_id_1,trans_id_2),
 	foreign key(card_id_1,card_id_2) references card(card_id_1,card_id_2) on delete cascade
-	foreign key(trans_source,trans_destination) references transaction_cost(trans_source,trans_destination) on delete cascade
 );
 
+create table transaction_cost(
+	trans_id_1 varchar(20),
+	trans_id_2 int unique,
+	trans_cost decimal(13,2),
+	foreign key (trans_id_1, trans_id_2) references transactions(trans_id_1, trans_id_2) on delete cascade
+);
 
 -- MISC.
 -- delete from card;
@@ -64,10 +46,12 @@ select * from transactions
 where concat(card_id_1,card_id_2) = 'MTROCRD26122021-5';
 
 -- DB initialization
-insert into card values('MTROCRD26122021-',1,50.0,true,date(now()+ interval '1 year'));
-insert into transactions values('TRANS26122021-',1,'MTROCRD26122021-',1,50.0,null,null);
+insert into card values('MTROCRD26122021-',1,50.0,date(now()+ interval '1 year'));
+insert into card_status values('MTROCRD26122021-',1, true);
 
-insert into transactions values('TRANS26122021-',1,'MTROCRD26122021-',1,50.0,null,null);
+insert into transactions values('TRANS26122021-',1,'MTROCRD26122021-',1,'None','None');
+insert into transaction_cost values ('TRANS26122021-',1, 50.0);
+
 
 
 select insert_to_card();
@@ -117,6 +101,8 @@ insert into stations values('Jalahalli','D', 28.75);
 insert into stations values('Dasarahalli','D', 30.25);
 insert into stations values('Nagasandra','D', 31.95);
 
+select * from card;
+
 -- Function to insert a new card to DB and add the same to the transaction table
 create or replace function insert_to_card()
 	returns varchar
@@ -124,12 +110,16 @@ create or replace function insert_to_card()
 	as
 $$
 begin 
-		insert into card_status values(date(now()+ interval '1 year'),true);
 		insert into card 
-		select concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(card_id_2)+1,0,date(now()+ interval '1 year') from card; 
-		insert into trans_cost values(50.0,null,null);
+		select concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(card_id_2)+1,0,date(now()+ interval '1 year') from card;
+		insert into card_status 
+		select concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(card_id_2)+1, true from card_status;
+		
 		insert into transactions
 		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1,concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(c_.card_id_2),null,null from transactions t_, card c_;
+		insert into transaction_cost
+		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1, 50.0 from transaction_cost;
+		
 		return concat(concat('MTROCRD',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(card_id_2)) from card;
 end;
 $$
@@ -161,6 +151,9 @@ select insert_to_card();
 
 -- select date(now()+interval '1 year');
 
+select recharge(200,'MTROCRD11012022-',6);
+select * from transactions;
+
 -- Function to recharge a card and add the same to the transaction table
 create or replace function recharge(amount decimal(13,2),cardNo1 varchar,cardNo2 int)
 	returns decimal(13,2)
@@ -185,9 +178,12 @@ create or replace procedure recharge_push(cardNo1 varchar, cardNo2 int, amount d
 language plpgsql
 as $$
 begin
-		insert into trans_cost values(amount,null,null);
+		
 		insert into transactions
 		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1,cardNo1,cardNo2,null,null from transactions t_, card c_;
+		
+		insert into transaction_cost
+		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1, amount from transaction_cost;
 end;
 $$
 
@@ -243,16 +239,18 @@ begin
 		set balance = balance - amount
 		where cardNo2 = card_id_2;
 		
-		insert into trans_cost values(amount,source_,dest_ from transactions t_);
 		insert into transactions
 		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1,cardNo1,cardNo2,source_,dest_ from transactions t_, card c_;
+		insert into transaction_cost
+		select concat('TRANS',to_char(NOW() :: DATE, 'ddmmyyyy-')),max(trans_id_2)+1, amount from transaction_cost;
 		
 		return (select balance from card where cardNo2 = card_id_2);
 		
 end;
 $$
 
-select update_balance(100,'MTROCRD26122021-',4,'Mahalakshmi layout', 'Nadaprabhu Kempegowda Station');
+select update_balance(100,'MTROCRD11012022-',6,'Mahalakshmi layout', 'Nadaprabhu Kempegowda Station');
+select * from transaction_cost;
 
 -- function to retreive the balance of a card
 create or replace function ret_bal(cardNo1 varchar, cardNo2 int)
@@ -266,29 +264,8 @@ begin
 end;
 $$
 
-select ret_bal('MTROCRD04012022-', 26);
+select ret_bal('MTROCRD11012022-', 6);
 select * from card;
 
 update card set balance = 40 where card_id_2 = 26;
 	
-
-
-		
-		
-			
-
-			
-
-
-
-
-
-
-
-
-
-
-
-
-
-
