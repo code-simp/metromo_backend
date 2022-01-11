@@ -68,7 +68,7 @@ class History(Resource):
 
 class History_all(Resource):
     def get(self):
-        cur.execute('select * from transactions')
+        cur.execute('select trans.trans_id_1, trans.trans_id_2, trans.card_id_1, trans.card_id_2, tcost.trans_cost, trans.trans_source, trans.trans_destination  from transactions trans, transaction_cost tcost where trans.trans_id_1 = tcost.trans_id_1 and trans.trans_id_2 = tcost.trans_id_2 order by trans.trans_id_2 desc')
         historyAll = cur.fetchall()
         return jsonify(historyAll)
 

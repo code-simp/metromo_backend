@@ -268,4 +268,21 @@ select ret_bal('MTROCRD11012022-', 6);
 select * from card;
 
 update card set balance = 40 where card_id_2 = 26;
+
+select * from card;
+select * from card_status;
+select * from transactions;
+select * from transaction_cost;
+
+-- query to retreive all tuples of a card
+select trans.trans_id_1, trans.trans_id_2, trans.card_id_1, trans.card_id_2,
+tcost.trans_cost, trans.trans_source, trans.trans_destination 
+from transactions trans, transaction_cost tcost
+where concat(trans.card_id_1,trans.card_id_2) = 'MTROCRD11012022-7'
+and trans.trans_id_1 = tcost.trans_id_1 and trans.trans_id_2 = tcost.trans_id_2
+order by trans.trans_id_2 desc;
+
+--query to retreive all tuples of transaction table
+select trans.trans_id_1, trans.trans_id_2, trans.card_id_1, trans.card_id_2, tcost.trans_cost, trans.trans_source, trans.trans_destination  from transactions trans, transaction_cost tcost where trans.trans_id_1 = tcost.trans_id_1 and trans.trans_id_2 = tcost.trans_id_2 order by trans.trans_id_2 desc;
+
 	
