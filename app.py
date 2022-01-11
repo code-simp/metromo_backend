@@ -60,7 +60,7 @@ class History(Resource):
         print(cardNoTemp)
         cardNo += cardNoTemp[i:]
         print(cardNo)
-        cur.execute("select * from transactions where concat(card_id_1,card_id_2) = '%s' order by trans_id_2 desc" %(cardNo))
+        cur.execute("select trans.trans_id_1, trans.trans_id_2, trans.card_id_1, trans.card_id_2, tcost.trans_cost, trans.trans_source, trans.trans_destination from transactions trans, transaction_cost tcost where concat(trans.card_id_1,trans.card_id_2) = '%s' and trans.trans_id_1 = tcost.trans_id_1 and trans.trans_id_2 = tcost.trans_id_2 order by trans.trans_id_2 desc;" %(cardNo))
         history = cur.fetchall()
         return jsonify(history)
 
@@ -68,7 +68,7 @@ class History(Resource):
 
 class History_all(Resource):
     def get(self):
-        cur.execute('select * from transactions')
+        cur.execute('select trans.trans_id_1, trans.trans_id_2, trans.card_id_1, trans.card_id_2, tcost.trans_cost, trans.trans_source, trans.trans_destination  from transactions trans, transaction_cost tcost where trans.trans_id_1 = tcost.trans_id_1 and trans.trans_id_2 = tcost.trans_id_2 order by trans.trans_id_2 desc')
         historyAll = cur.fetchall()
         return jsonify(historyAll)
 
