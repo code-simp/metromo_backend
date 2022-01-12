@@ -115,7 +115,7 @@ class Report_Month(Resource):
 
 class Report_Analysis(Resource):
     def get(self, monthYear):
-        cur.execute('select trans.trans_id_1, trans.trans_id_2, trans.card_id_1, trans.card_id_2, tcost.trans_cost, trans.trans_source, trans.trans_destination  from transactions trans, transaction_cost tcost where trans.trans_id_1 = tcost.trans_id_1 and trans.trans_id_2 = tcost.trans_id_2 order by trans.trans_id_2 desc')
+        cur.execute('select trans.trans_id_1, trans.trans_id_2, trans.card_id_1, trans.card_id_2, tcost.trans_cost, trans.trans_source, trans.trans_destination  from transactions trans, transaction_cost tcost where trans.trans_id_1 = tcost.trans_id_1 and trans.trans_id_2 = tcost.trans_id_2 order by trans.trans_id_2 asc')
         historyAll = cur.fetchall()
 
         #code to send the montly_report 
@@ -133,6 +133,7 @@ class Report_Analysis(Resource):
             'data' : list(temp)
         }
         print(type(temp[0]))
+        print(result)
         return jsonify(result)
 
 
