@@ -49,8 +49,26 @@ where concat(card_id_1,card_id_2) = 'MTROCRD26122021-5';
 insert into card values('MTROCRD26122021-',1,50.0,date(now()+ interval '1 year'));
 insert into card_status values('MTROCRD26122021-',1, true);
 
+insert into card values('MTROCRD26122021-',2,50.0,date(now()+ interval '1 year'));
+insert into card_status values('MTROCRD26122021-',2, true);
+
+insert into card values('MTROCRD26122021-',3,50.0,date(now()+ interval '1 year'));
+insert into card_status values('MTROCRD26122021-',3, true);
+
+insert into card values('MTROCRD26122021-',4,50.0,date(now()+ interval '1 year'));
+insert into card_status values('MTROCRD26122021-',4, true);
+
 insert into transactions values('TRANS26122021-',1,'MTROCRD26122021-',1,'None','None');
 insert into transaction_cost values ('TRANS26122021-',1, 50.0);
+
+insert into transactions values('TRANS26122021-',2,'MTROCRD26122021-',1,'None','None');
+insert into transaction_cost values ('TRANS26122021-',2, 50.0);
+
+insert into transactions values('TRANS26122021-',3,'MTROCRD26122021-',1,'None','None');
+insert into transaction_cost values ('TRANS26122021-',3, 50.0);
+
+insert into transactions values('TRANS26122021-',4,'MTROCRD26122021-',1,'None','None');
+insert into transaction_cost values ('TRANS26122021-',4, 50.0);
 
 
 
@@ -190,7 +208,7 @@ $$
 --test the recharge function with stored procedure
 select * from card;
 select * from transactions;
-select recharge(200,'MTROCRD26122021-',4);
+select recharge(100,'MTROCRD12012022-',9);
 
 
 -- Function to just get the cost of a travel
@@ -249,7 +267,7 @@ begin
 end;
 $$
 
-select update_balance(100,'MTROCRD11012022-',6,'Mahalakshmi layout', 'Nadaprabhu Kempegowda Station');
+select update_balance(100,'MTROCRD12012022-',10,'Mahalakshmi layout', 'Nadaprabhu Kempegowda Station');
 select * from transaction_cost;
 
 -- function to retreive the balance of a card

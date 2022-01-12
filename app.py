@@ -1,5 +1,5 @@
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 import os
 SECRET_KEY = os.getenv("HOST")
@@ -12,8 +12,8 @@ import psycopg2
 
 # Connecting the DB
 con = psycopg2.connect(
-    # port = "5431",
-    host = SECRET_KEY,
+    port = "5431",
+    host = 'localhost',
     database = 'metromo',
     user = 'postgres',
     password = '1234')
@@ -124,14 +124,15 @@ class Report_Analysis(Resource):
         result = dict()
         for i in historyAll:
             if i[0][7:13] == monthYear:
-                temp.append(i)
+                temp.append(list(i))
                 total += float(i[4])
             else:
                 continue
         result = {
             'revenue' : total,
-            'data' : temp
+            'data' : list(temp)
         }
+        print(type(temp[0]))
         return jsonify(result)
 
 
