@@ -42,6 +42,8 @@ create table transaction_cost(
 -- delete from card;
 -- delete from transactions;
 
+select * from card;
+
 select * from transactions
 where concat(card_id_1,card_id_2) = 'MTROCRD26122021-5';
 
@@ -49,23 +51,23 @@ where concat(card_id_1,card_id_2) = 'MTROCRD26122021-5';
 insert into card values('MTROCRD26122021-',1,50.0,date(now()+ interval '1 year'));
 insert into card_status values('MTROCRD26122021-',1, true);
 
-insert into card values('MTROCRD26122021-',2,50.0,date(now()+ interval '1 year'));
-insert into card_status values('MTROCRD26122021-',2, true);
+insert into card values('MTROCRD12122021-',13,50.0,date(now()+ interval '1 year'));
+insert into card_status values('MTROCRD12122021-',13, true);
 
-insert into card values('MTROCRD26122021-',3,50.0,date(now()+ interval '1 year'));
-insert into card_status values('MTROCRD26122021-',3, true);
+insert into card values('MTROCRD14122021-',14,50.0,date(now()+ interval '1 year'));
+insert into card_status values('MTROCRD14122021-',14, true);
 
-insert into card values('MTROCRD26122021-',4,50.0,date(now()+ interval '1 year'));
+insert into card values('MTROCRD01122021-',4,50.0,date(now()+ interval '1 year'));
 insert into card_status values('MTROCRD26122021-',4, true);
 
 insert into transactions values('TRANS26122021-',1,'MTROCRD26122021-',1,'None','None');
 insert into transaction_cost values ('TRANS26122021-',1, 50.0);
 
-insert into transactions values('TRANS26122021-',2,'MTROCRD26122021-',1,'None','None');
+insert into transactions values('TRANS26122021-',2,'MTROCRD12122021-',1,'None','None');
 insert into transaction_cost values ('TRANS26122021-',2, 50.0);
 
-insert into transactions values('TRANS26122021-',3,'MTROCRD26122021-',1,'None','None');
-insert into transaction_cost values ('TRANS26122021-',3, 50.0);
+insert into transactions values('TRANS14122021-',19,'MTROCRD14122021-',14,'None','None');
+insert into transaction_cost values ('TRANS14122021-',19, 50.0);
 
 insert into transactions values('TRANS26122021-',4,'MTROCRD26122021-',1,'None','None');
 insert into transaction_cost values ('TRANS26122021-',4, 50.0);
@@ -77,6 +79,14 @@ select * from card;
 select * from transactions;
 
 -- delete from card where card_id_2 = 13;
+
+--dummy data for report generation
+
+insert into card values('MTROCRD28012022-',27,50.0,date(now()+ interval '1 year'));
+insert into card_status values('MTROCRD28012022-',27, true);
+
+insert into transactions values('TRANS28012022-',32,'MTROCRD28012022-',27,null,null);
+insert into transaction_cost values ('TRANS28012022-',32, 50.0);
 
 -- initialization of stations table
 insert into stations values('Baiyappanahalli','A',28.65);
