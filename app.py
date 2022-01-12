@@ -96,11 +96,53 @@ class Travel(Resource):
         balance = jsonify(balance)
         return balance
 
+class Report_Month(Resource):
+    def get(self):
+        cur.execute('select trans.trans_id_1, trans.trans_id_2, trans.card_id_1, trans.card_id_2, tcost.trans_cost, trans.trans_source, trans.trans_destination  from transactions trans, transaction_cost tcost where trans.trans_id_1 = tcost.trans_id_1 and trans.trans_id_2 = tcost.trans_id_2 order by trans.trans_id_2 desc')
+        historyAll = cur.fetchall()
+        # print(historyAll)
+        
+        #code to return month_basis
+        temp = set()
+        result = []
+        for i in historyAll:
+            if i[0][7:9] in temp:
+                continue
+            else:
+                temp.add(i[0][7:9])
+                result.append(i)
+        return jsonify(result)
+
+class Report_Analysis(Resource):
+    def get(self, monthYear):
+        cur.execute('select trans.trans_id_1, trans.trans_id_2, trans.card_id_1, trans.card_id_2, tcost.trans_cost, trans.trans_source, trans.trans_destination  from transactions trans, transaction_cost tcost where trans.trans_id_1 = tcost.trans_id_1 and trans.trans_id_2 = tcost.trans_id_2 order by trans.trans_id_2 desc')
+        historyAll = cur.fetchall()
+
+        #code to send the montly_report 
+        total = 0.00
+        temp = []
+        result = dict()
+        for i in historyAll:
+            if i[0][7:13] == monthYear:
+                temp.append(i)
+                total += float(i[4])
+            else:
+                continue
+        result = {
+            'revenue' : total,
+            'data' : temp
+        }
+        return jsonify(result)
+
+
 api.add_resource(AddCard,'/add_card')
 api.add_resource(History, '/history/<string:cardNoTemp>')
 api.add_resource(History_all, '/history_all')
 api.add_resource(Recharge,'/recharge_card/<string:cardNo>/<int:amount>')
 api.add_resource(Travel,'/travel/<string:cardNo>/<string:source>/<string:dest>')
+api.add_resource(Report_Month,'/report_month')
+api.add_resource(Report_Analysis,'/report_analysis/<string:monthYear>')
+
 
 
 if __name__ == '__main__':
